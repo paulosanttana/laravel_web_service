@@ -149,7 +149,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
         ];
     }
 
-12.3-No método store() mudar Request para o StoreUpdateCategoryFormRequest criado. Não esqueça de importar (use App\Http\Requests\StoreUpdateCategoryFormRequest;)
+12.3-No método store() mudar parametro Request para o StoreUpdateCategoryFormRequest criado. Não esqueça de importar (use App\Http\Requests\StoreUpdateCategoryFormRequest;)
 
     public function store(StoreUpdateCategoryFormRequest $request)
     {
@@ -199,6 +199,10 @@ Observação: usado model 'Category::find($id)' ao invez do '$this->category->fi
     Route::delete('categories/{id}', 'Api\CategoryController@delete');
 
 
+15-Comente as rotas já criada e adicione Rota API Simplificada (index, store, update, destroy).
+
+    Route::apiResource('categories', 'Api\CategoryController');
+    
 
 ## 2º Parte: Autenticação JWT Laravel
 ## 3º Parte: Laravel + VueJs
