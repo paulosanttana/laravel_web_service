@@ -199,10 +199,13 @@ Observação: usado model 'Category::find($id)' ao invez do '$this->category->fi
     Route::delete('categories/{id}', 'Api\CategoryController@delete');
 
 
+<br>
+<b>Rota API Simplificada</b>
+
 15-Comente as rotas já criada e adicione Rota API Simplificada (index, store, update, destroy).
 
     Route::apiResource('categories', 'Api\CategoryController');
-    
+
 
 ## 2º Parte: Autenticação JWT Laravel
 ## 3º Parte: Laravel + VueJs
