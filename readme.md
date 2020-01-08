@@ -15,12 +15,14 @@ configura banco .env e roda migration
 5-Criar controller 
     php artisan make:controller Api\\CategoryController
 6-Cria metodo Index em CategoryController
+
     public function index(Category $category)
     {
         $categories = $category->all();
 
         return response()->json($categories, 200);
     }
+    
 Define rota em routes/api.php 
     Route::get('categories', 'Api\CategoryController@index');
 7-Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
