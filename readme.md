@@ -3,17 +3,29 @@
 ## 1º Parte: Arquitetura API (Laravel)
 
 1-Intalação projeto Laravel 5.7
+
     composer create-project --prefer-dist laravel/laravel blog "5.7.*"
-2-Alterar timezone em config/app.php 
+
+2-Alterar timezone em config/app.php
+
     'timezone' => 'America/Sao_Paulo',
+
 3-Criar Model/Migration de Category
+
     php artisan make:model Models\\Category -m
+
 4-Adiciona coluna no migrate Category, adiciona no AppServiceProvider.php
+
     Schema::defaultStringLength(191); 
-configura banco .env e roda migration
+
+Configura banco .env e roda migration
+
     php artisan migrate
-5-Criar controller 
+
+5-Criar controller
+
     php artisan make:controller Api\\CategoryController
+
 6-Cria metodo Index em CategoryController
 
     public function index(Category $category)
@@ -22,9 +34,11 @@ configura banco .env e roda migration
 
         return response()->json($categories, 200);
     }
-    
-Define rota em routes/api.php 
+
+Define rota em routes/api.php
+
     Route::get('categories', 'Api\CategoryController@index');
+    
 7-Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
 
 
