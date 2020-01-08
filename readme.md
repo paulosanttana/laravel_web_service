@@ -9,6 +9,9 @@
     6-Cria metodo Index em CategoryController, define rota em routes/api.php (Route::get('categories', 'Api\CategoryController@index');).
     7-Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
 
+
+Teste...
+
 ## 2º Parte: Autenticação JWT Laravel
 ## 3º Parte: Laravel + VueJs
-<hr>
+
