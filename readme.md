@@ -68,7 +68,7 @@ Faça teste no browser ou postman passando filtro com ou sem nome
 
     http://127.0.0.1:8000/api/categories
 
-
+<br>
 <b>INSERT Category</b>    
 
 10-Adicione método construtor no controller CategoryController.
@@ -105,6 +105,7 @@ Faça teste no browser ou postman passando filtro com ou sem nome
 
 Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=Nova Categoria)
 
+<br>
 <b>EDITAR Category</b>
 
 
