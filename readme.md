@@ -50,7 +50,7 @@ Define rota em routes/api.php
         return response()->json($categories, 200);
     }
 
-9-Adiciona metodo na model Category
+9-Adiciona método na model Category
 
     public function getResults($name = null)
     {   // verifica se está passando nome na pesquisa, Se sim traz tudo!
@@ -61,6 +61,54 @@ Define rota em routes/api.php
         return $this->where('name', 'LIKE', "%{$name}%")
                 ->get();
     }
+
+Faça teste no browser ou postman passando filtro com ou sem nome
+
+    http://127.0.0.1:8000/api/categories?name=test
+
+    http://127.0.0.1:8000/api/categories
+
+
+<b>INSERT Category</b>    
+
+10-Adicione método construtor no controller CategoryController.
+
+    // Propriedade category usando no construct
+    private $category;
+    
+    // Criado construct para injetar Category automaticamente
+    public function __construct(Category $category)
+    {   //propriedade $category recebe objeto Category
+        $this->category = $category;
+    }
+
+10.1-Adicione método store
+
+    public function store(Request $request)
+    {
+        $category = $this->category->create($request->all());
+
+        return response()->json($category, 201);
+    }
+
+10.2-Altera linha para receber propriedade '$this->category' criada no construct que recebe objeto.
+
+    $categories = $this->category->getResults($request->name);
+
+10.3-Adicione rota para store()
+
+    Route::post('categories', 'Api\CategoryController@store');
+
+10.4-Adicione fillable no model Category para permitir o insert
+
+    protected $fillable = ['name'];
+
+Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=Nova Categoria)
+
+<b>EDITAR Category</b>
+
+
+
 
 ## 2º Parte: Autenticação JWT Laravel
 ## 3º Parte: Laravel + VueJs
