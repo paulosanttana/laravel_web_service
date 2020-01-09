@@ -1,5 +1,7 @@
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
+<br>
+
 ## 1º Parte: Arquitetura API (Laravel)
 
 1-Intalação projeto Laravel 5.7
@@ -205,6 +207,127 @@ Observação: usado model 'Category::find($id)' ao invez do '$this->category->fi
 15-Comente as rotas já criada e adicione Rota API Simplificada (index, store, update, destroy).
 
     Route::apiResource('categories', 'Api\CategoryController');
+
+
+<br>
+<b>Visualizar detalhes de category com método show()</b>
+
+16-Adicionar método show()
+
+    public function show($id)
+    {
+        $category = $this->category->find($id);
+        if(!$category)
+            return response()->json(['error' => 'Not found'], 404);
+        
+        return response()->json($category, 200);
+    }
+
+Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
+
+<br>
+<b>Gestão de PRODUTOS com upload de imagens</b>
+
+1-Criar Model
+
+    php artisan make:model Models\\Product -m
+
+2-Defina campos da tabela no migrate 'products' conforme abaixo:
+
+    public function up()
+    {
+        Schema::create('products', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name', 100)->unique();
+            $table->text('description')->nullable();
+            $table->string('image')->nullable();
+            $table->timestamps();
+        });
+    }
+
+<br>
+<i>coluna 'name' vai aceitar 100 caracteres e tem que ser unico</i><br>
+<i>colunas 'description' e 'image' inicia com valor null</i>
+
+2.1- Execute a migration
+
+    php artisan migrate
+
+3-Criar factory Produtos para popular tabela com dados ficticios.
+
+    php artisan make:seeder UsersTableSeeder
+
+3.1-Inserir novo usuário no seed 'UsersTableSeeder'
+
+    public function run()
+    {
+        User::create([
+            'name'      => 'José Santana',
+            'email'     => 'josesantana@gmail.com',
+            'password'  => bcrypt('123456'),
+        ]);
+    }
+
+3.2- Descomente o retorno do método run() do seed 'DatabaseSeeder'.
+
+    $this->call(UsersTableSeeder::class);
+
+3.3-Execute o seed
+
+    php artisan db:seed
+
+4-Criar Factory para inserir usuários fake
+
+    php artisan make:factory ProductFactory
+
+4.1-Defina os valores no factory criado.
+
+    use App\Models\Product;
+    use Faker\Generator as Faker;
+
+    $factory->define(Product::class, function (Faker $faker) {
+        return [
+            'name'          => $faker->unique()->word,
+            'description'   => $faker->sentence(),
+        ];
+    });
+
+4.2- Criar novo seeder para definir quando registros deseja criar.
+
+    php artisan make:seeder ProductsTableSeeder
+
+4.3-Insira quantidade no seed ProductsTableSeeder, será criado 50 registros. 
+
+    public function run()
+    {
+        factory(Product::class, 50)->create();
+    }
+
+4.4-Adicione no seed 'DatabaseSeeder' o seed 'ProductsTableSeeder'.
+
+    public function run()
+    {
+        $this->call([
+            UsersTableSeeder::class,
+            ProductsTableSeeder::class,
+        ]);
+    }
+
+4.5-Execute no teminal
+
+    php artisan db:seed --class=ProductsTableSeeder
+
+    
+
+
+
+
+
+
+
+
+
+
 
 
 ## 2º Parte: Autenticação JWT Laravel
