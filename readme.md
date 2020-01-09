@@ -5,20 +5,20 @@
 ## 1º Parte: Arquitetura API (Laravel)
 
 1. Intalação projeto Laravel 5.7
-
-    composer create-project --prefer-dist laravel/laravel blog "5.7.*"
-
+    
+        composer create-project --prefer-dist laravel/laravel blog "5.7.*"
+    
 2. Alterar timezone em config/app.php
 
-    'timezone' => 'America/Sao_Paulo',
+        'timezone' => 'America/Sao_Paulo',
 
 3. Criar Model/Migration de Category
 
-    php artisan make:model Models\\Category -m
+        php artisan make:model Models\\Category -m
 
 4. Adiciona coluna no migrate Category, adiciona no AppServiceProvider.php dentro do metodo  boot().
 
-    Schema::defaultStringLength(191); 
+        Schema::defaultStringLength(191); 
 
 Configura banco .env e roda migration
 
@@ -26,16 +26,16 @@ Configura banco .env e roda migration
 
 5. Criar controller
 
-    php artisan make:controller Api\\CategoryController
+        php artisan make:controller Api\\CategoryController
 
 6. Cria metodo Index em CategoryController
 
-    public function index(Category $category)
-    {
-        $categories = $category->all();
+        public function index(Category $category)
+        {
+            $categories = $category->all();
 
-        return response()->json($categories, 200);
-    }
+            return response()->json($categories, 200);
+        }
 
 Define rota do tipo GET em routes/api.php
 
@@ -44,24 +44,24 @@ Define rota do tipo GET em routes/api.php
 7. Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
 
 8. Altera index, passando resposábilidade para model Category.
-
-    public function index(Category $category, Request $request)
-    {
-        $categories = $category->getResults($request->name);
+    
+        public function index(Category $category, Request $request)
+        {
+            $categories = $category->getResults($request->name);
 
         return response()->json($categories, 200);
-    }
+        }
 
 9. Adiciona método na model Category
 
-    public function getResults($name = null)
-    {   
-        if (!$name)
-            return $this->get();
+        public function getResults($name = null)
+        {   
+            if (!$name)
+                return $this->get();
 
-        return $this->where('name', 'LIKE', "%{$name}%")
-                ->get();
-    }
+            return $this->where('name', 'LIKE', "%{$name}%")
+                    ->get();
+        }
 
 Faça teste no browser ou postman passando filtro com ou sem nome
 
@@ -74,12 +74,12 @@ Faça teste no browser ou postman passando filtro com ou sem nome
 
 10. Adicione método construtor no controller CategoryController.
 
-    private $category;
+        private $category;
 
-    public function __construct(Category $category)
-    {   
-        $this->category = $category;
-    }
+        public function __construct(Category $category)
+        {   
+            $this->category = $category;
+        }
 
 10.1 Adicione método store
 
@@ -109,19 +109,17 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 
 11. Adiciona método update() em CategoryController
 
-    public function update(Request $request, $id)
-    
-    {
-    
-        $category = $this->category->find($id);
-        
-        if(!$category)
-            return response()->json(['error' => 'Not found'], 404);
-        
-        $category->update($request->all());
+        public function update(Request $request, $id)
+        {
+            $category = $this->category->find($id);
 
-        return response()->json($category);
-    }
+            if(!$category)
+                return response()->json(['error' => 'Not found'], 404);
+
+            $category->update($request->all());
+
+            return response()->json($category);
+        }
 
 11.1 Adiciona rota do tipo PUT
 
@@ -133,7 +131,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 
 12. Criar formRequest, após criar estará disponível em app\Http\Request
 
-    php artisan make:request StoreUpdateCategoryFormRequest
+        php artisan make:request StoreUpdateCategoryFormRequest
 
 12.1 Primeiro passo, passar o authorize() para true
 
@@ -165,9 +163,9 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 
 13. Altere o parametro Request para StoreUpdateCategoryFormRequest no método update()
 
-    public function update(StoreUpdateCategoryFormRequest $request, $id)
-    {
-        ...
+        public function update(StoreUpdateCategoryFormRequest $request, $id)
+        {
+            ...
 
 13.1 Altere o StoreUpdateCategoryFormRequest para que quando o valor for o mesmo o laravel permite alterar.
 
@@ -206,7 +204,7 @@ Observação: usado model 'Category::find($id)' ao invez do '$this->category->fi
 
 15. Comente as rotas já criada e adicione Rota API Simplificada (index, store, update, destroy).
 
-    Route::apiResource('categories', 'Api\CategoryController');
+        Route::apiResource('categories', 'Api\CategoryController');
 
 
 <br>
@@ -214,14 +212,14 @@ Observação: usado model 'Category::find($id)' ao invez do '$this->category->fi
 
 16. Adicionar método show()
 
-    public function show($id)
-    {
-        $category = $this->category->find($id);
-        if(!$category)
-            return response()->json(['error' => 'Not found'], 404);
-        
-        return response()->json($category, 200);
-    }
+        public function show($id)
+        {
+            $category = $this->category->find($id);
+            if(!$category)
+                return response()->json(['error' => 'Not found'], 404);
+
+            return response()->json($category, 200);
+        }
 
 Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
@@ -230,24 +228,25 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
 1. Criar Model
 
-    php artisan make:model Models\\Product -m
+        php artisan make:model Models\\Product -m
 
 2. Defina campos da tabela no migrate 'products' conforme abaixo:
 
-    public function up()
-    {
-        Schema::create('products', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name', 100)->unique();
-            $table->text('description')->nullable();
-            $table->string('image')->nullable();
-            $table->timestamps();
-        });
-    }
+        public function up()
+        {
+            Schema::create('products', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('name', 100)->unique();
+                $table->text('description')->nullable();
+                $table->string('image')->nullable();
+                $table->timestamps();
+            });
+        }
 
 <br>
 <i>coluna 'name' vai aceitar 100 caracteres e tem que ser unico</i><br>
 <i>colunas 'description' e 'image' inicia com valor null</i>
+<br>
 
 2.1 Execute a migration
 
@@ -255,7 +254,7 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
 3. Criar factory Produtos para popular tabela com dados ficticios.
 
-    php artisan make:seeder UsersTableSeeder
+        php artisan make:seeder UsersTableSeeder
 
 3.1 Inserir novo usuário no seed 'UsersTableSeeder'
 
@@ -278,7 +277,7 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
 4. Criar Factory para inserir usuários fake
 
-    php artisan make:factory ProductFactory
+        php artisan make:factory ProductFactory
 
 4.1 Defina os valores no factory criado.
 
