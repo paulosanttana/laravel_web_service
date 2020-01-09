@@ -4,19 +4,19 @@
 
 ## 1º Parte: Arquitetura API (Laravel)
 
-1-Intalação projeto Laravel 5.7
+1. Intalação projeto Laravel 5.7
 
     composer create-project --prefer-dist laravel/laravel blog "5.7.*"
 
-2-Alterar timezone em config/app.php
+2. Alterar timezone em config/app.php
 
     'timezone' => 'America/Sao_Paulo',
 
-3-Criar Model/Migration de Category
+3. Criar Model/Migration de Category
 
     php artisan make:model Models\\Category -m
 
-4-Adiciona coluna no migrate Category, adiciona no AppServiceProvider.php dentro do metodo  boot().
+4. Adiciona coluna no migrate Category, adiciona no AppServiceProvider.php dentro do metodo  boot().
 
     Schema::defaultStringLength(191); 
 
@@ -24,11 +24,11 @@ Configura banco .env e roda migration
 
     php artisan migrate
 
-5-Criar controller
+5. Criar controller
 
     php artisan make:controller Api\\CategoryController
 
-6-Cria metodo Index em CategoryController
+6. Cria metodo Index em CategoryController
 
     public function index(Category $category)
     {
@@ -41,9 +41,9 @@ Define rota do tipo GET em routes/api.php
 
     Route::get('categories', 'Api\CategoryController@index');
 
-7-Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
+7. Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
 
-8-Altera index, passando resposábilidade para model Category.
+8. Altera index, passando resposábilidade para model Category.
 
     public function index(Category $category, Request $request)
     {
@@ -52,7 +52,7 @@ Define rota do tipo GET em routes/api.php
         return response()->json($categories, 200);
     }
 
-9-Adiciona método na model Category
+9. Adiciona método na model Category
 
     public function getResults($name = null)
     {   // verifica se está passando nome na pesquisa, Se sim traz tudo!
@@ -73,7 +73,7 @@ Faça teste no browser ou postman passando filtro com ou sem nome
 <br>
 <b>INSERT Category</b>    
 
-10-Adicione método construtor no controller CategoryController.
+10. Adicione método construtor no controller CategoryController.
 
     // Propriedade category usando no construct
     private $category;
@@ -84,7 +84,7 @@ Faça teste no browser ou postman passando filtro com ou sem nome
         $this->category = $category;
     }
 
-10.1-Adicione método store
+10.1 Adicione método store
 
     public function store(Request $request)
     {
@@ -93,15 +93,15 @@ Faça teste no browser ou postman passando filtro com ou sem nome
         return response()->json($category, 201);
     }
 
-10.2-Altera linha para receber propriedade '$this->category' criada no construct que recebe objeto.
+10.2 Altera linha para receber propriedade '$this->category' criada no construct que recebe objeto.
 
     $categories = $this->category->getResults($request->name);
 
-10.3-Adicione rota do tipo POST para store()
+10.3 Adicione rota do tipo POST para store()
 
     Route::post('categories', 'Api\CategoryController@store');
 
-10.4-Adicione fillable no model Category para permitir o insert
+10.4 Adicione fillable no model Category para permitir o insert
 
     protected $fillable = ['name'];
 
@@ -110,7 +110,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 <br>
 <b>EDITAR Category</b>
 
-11-Adiciona método update() em CategoryController
+11. Adiciona método update() em CategoryController
 
     public function update(Request $request, $id)
     {
@@ -123,7 +123,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
         return response()->json($category);
     }
 
-11.1-Adiciona rota do tipo PUT
+11.1 Adiciona rota do tipo PUT
 
     Route::put('categories/{id}', 'Api\CategoryController@update');
 
@@ -131,18 +131,18 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 <br>
 <b>VALIDAÇÃO Category</b>
 
-12-Criar formRequest, após criar estará disponível em app\Http\Request
+12. Criar formRequest, após criar estará disponível em app\Http\Request
 
     php artisan make:request StoreUpdateCategoryFormRequest
 
-12.1-Primeiro passo, passar o authorize() para true
+12.1 Primeiro passo, passar o authorize() para true
 
     public function authorize()
     {
         return true;
     }
 
-12.2-Definir regras de validações. Informar que o campo 'name' vai ser requerido, minimo 3 caracteres, maximo 50 caracteres e unico na tabela categories.
+12.2 Definir regras de validações. Informar que o campo 'name' vai ser requerido, minimo 3 caracteres, maximo 50 caracteres e unico na tabela categories.
 
     public function rules()
     {
@@ -151,7 +151,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
         ];
     }
 
-12.3-No método store() mudar parametro Request para o StoreUpdateCategoryFormRequest criado. Não esqueça de importar (use App\Http\Requests\StoreUpdateCategoryFormRequest;)
+12.3 No método store() mudar parametro Request para o StoreUpdateCategoryFormRequest criado. Não esqueça de importar (use App\Http\Requests\StoreUpdateCategoryFormRequest;)
 
     public function store(StoreUpdateCategoryFormRequest $request)
     {
@@ -163,13 +163,13 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 <br>
 <b>Permitir Editar registro cuja informações são unicas no banco de dados.</b>
 
-13-Altere o parametro Request para StoreUpdateCategoryFormRequest no método update()
+13. Altere o parametro Request para StoreUpdateCategoryFormRequest no método update()
 
     public function update(StoreUpdateCategoryFormRequest $request, $id)
     {
         ...
 
-13.1-Altere o StoreUpdateCategoryFormRequest para que quando o valor for o mesmo o laravel permite alterar.
+13.1 Altere o StoreUpdateCategoryFormRequest para que quando o valor for o mesmo o laravel permite alterar.
 
     public function rules()
     {
@@ -180,7 +180,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 <br>
 <b>DELETE Category</b>
 
-14-Criar método delete()
+14 Criar método delete()
 
     public function delete($id)
     {
@@ -196,7 +196,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 Observação: usado model 'Category::find($id)' ao invez do '$this->category->find($id)'.
 
 
-14.1-Adiciona rota do tipo DELETE
+14.1 Adiciona rota do tipo DELETE
 
     Route::delete('categories/{id}', 'Api\CategoryController@delete');
 
@@ -204,7 +204,7 @@ Observação: usado model 'Category::find($id)' ao invez do '$this->category->fi
 <br>
 <b>Rota API Simplificada</b>
 
-15-Comente as rotas já criada e adicione Rota API Simplificada (index, store, update, destroy).
+15. Comente as rotas já criada e adicione Rota API Simplificada (index, store, update, destroy).
 
     Route::apiResource('categories', 'Api\CategoryController');
 
@@ -212,7 +212,7 @@ Observação: usado model 'Category::find($id)' ao invez do '$this->category->fi
 <br>
 <b>Visualizar detalhes de category com método show()</b>
 
-16-Adicionar método show()
+16. Adicionar método show()
 
     public function show($id)
     {
@@ -228,11 +228,11 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 <br>
 <b>Gestão de PRODUTOS com upload de imagens</b>
 
-1-Criar Model
+1. Criar Model
 
     php artisan make:model Models\\Product -m
 
-2-Defina campos da tabela no migrate 'products' conforme abaixo:
+2. Defina campos da tabela no migrate 'products' conforme abaixo:
 
     public function up()
     {
@@ -249,15 +249,15 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 <i>coluna 'name' vai aceitar 100 caracteres e tem que ser unico</i><br>
 <i>colunas 'description' e 'image' inicia com valor null</i>
 
-2.1- Execute a migration
+2.1 Execute a migration
 
     php artisan migrate
 
-3-Criar factory Produtos para popular tabela com dados ficticios.
+3. Criar factory Produtos para popular tabela com dados ficticios.
 
     php artisan make:seeder UsersTableSeeder
 
-3.1-Inserir novo usuário no seed 'UsersTableSeeder'
+3.1 Inserir novo usuário no seed 'UsersTableSeeder'
 
     public function run()
     {
@@ -268,7 +268,7 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
         ]);
     }
 
-3.2- Descomente o retorno do método run() do seed 'DatabaseSeeder'.
+3.2 Descomente o retorno do método run() do seed 'DatabaseSeeder'.
 
     $this->call(UsersTableSeeder::class);
 
@@ -276,11 +276,11 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
     php artisan db:seed
 
-4-Criar Factory para inserir usuários fake
+4. Criar Factory para inserir usuários fake
 
     php artisan make:factory ProductFactory
 
-4.1-Defina os valores no factory criado.
+4.1 Defina os valores no factory criado.
 
     use App\Models\Product;
     use Faker\Generator as Faker;
@@ -292,18 +292,18 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
         ];
     });
 
-4.2- Criar novo seeder para definir quando registros deseja criar.
+4.2 Criar novo seeder para definir quando registros deseja criar.
 
     php artisan make:seeder ProductsTableSeeder
 
-4.3-Insira quantidade no seed ProductsTableSeeder, será criado 50 registros. 
+4.3 Insira quantidade no seed ProductsTableSeeder, será criado 50 registros. 
 
     public function run()
     {
         factory(Product::class, 50)->create();
     }
 
-4.4-Adicione no seed 'DatabaseSeeder' o seed 'ProductsTableSeeder'.
+4.4 Adicione no seed 'DatabaseSeeder' o seed 'ProductsTableSeeder'.
 
     public function run()
     {
@@ -313,7 +313,7 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
         ]);
     }
 
-4.5-Execute no teminal
+4.5 Execute no teminal
 
     php artisan db:seed --class=ProductsTableSeeder
 
