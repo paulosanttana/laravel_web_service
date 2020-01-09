@@ -11,3 +11,5 @@
 // Rota API Simplificada (index, store, update, destroy). ----------------
 
 Route::apiResource('categories', 'Api\CategoryController');
+
+Route::apiResource('products', 'Api\ProductController');

@@ -316,16 +316,186 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
         php artisan db:seed --class=ProductsTableSeeder
 
+<br>
+<b>RELACIONAMENTO entre Product e Categoriy</b>
+
+5.  Alterar migrate de produto 'CreateProductsTable', adicionar relacionamento com a coluna 'category_id' e chave estrangeira na tabela Products.
+
+        public function up()
+            {
+                Schema::create('products', function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->integer('category_id')->unsigned(); //adicionado
+                    $table->foreign('category_id') //adicionado
+                                ->references('id') //adicionado
+                                ->on('categories') //adicionado
+                                ->onDelete('cascade'); //adicionado
+                    $table->string('name', 100)->unique();
+                    $table->text('description')->nullable();
+                    $table->string('image')->nullable();
+                    $table->timestamps();
+                });
+            }
 
 
+5.1 Adicionar 'category_id' na factory 'ProductFactory.php'.
+
+        $factory->define(Product::class, function (Faker $faker) {
+            return [
+                'category_id'   => 1,
+                'name'          => $faker->unique()->word,
+                'description'   => $faker->sentence(),
+            ];
+        });
+
+5.2 Criar novo seed 
+
+        php artisan make:seeder CategoriesTableSeeder
+
+5.3 Adiciona novo name com valor
+
+        public function run()
+        {
+            Category::create([
+                'name' => 'PHP',
+            ]);
+        }
+
+5.4 Incluir no seeder 'CategoriesTableSeeder' no 'DataBaseSeeder.php'
+
+        public function run()
+        {
+            $this->call([
+                UsersTableSeeder::class,
+                CategoriesTableSeeder::class,
+                ProductsTableSeeder::class,
+            ]);
+        }
+
+5.5 Execute as migrations novamente com refresh e --seed para que seja excluido todas tabelas e criado novamente com todos seeds.
+
+        php artisan migrate:refresh --seed
+
+6. Listar produtos. Crie novo controller 'ProductController'
+
+        php artisan make:controller Api\\ProductController --resource
+
+6.1 Configura método index(). Não esqueça de importar model Product.
+
+        public function index()
+        {
+            $products = Product::all();
+
+            return response()->json($products, 200);
+        }
+
+<br>
+<b>INSERT Produto</b>
+
+7. Criar método store() no controller ProductController
+
+            public function store(Request $request)
+            {
+                $novoProduto = $request->all();
+
+                $product = $this->product->create($novoProduto);
+
+                return response()->json($product, 201);
+            }
+
+7.1 Adiciona coluna 'category_id' no model Product 
+
+            protected $fillable = ['name', 'description', 'image', 'category_id'];
 
 
+<br>
+<b>EDITE Produto</b>
+
+8. Adiciona método update em ProductController
+
+            public function update(Request $request, $id)
+            {
+                $product = $this->product->find($id);
+
+                if(!$product)
+                    return response()->json(['error' => 'Not Found'], 404);
+
+                $product->update($request->all());
+            }
+
+<i>Faça teste no postman, passa url com o id do produto e passe os parametros desejado (name, description, category_id).</i>
+    
+            http://127.0.0.1:8000/api/products/54
+
+<br>
+<b>VALIDAÇÃO Produto</b>
+
+9. Cria formRequest com nome StoreUpdateProductFormRequest
+
+            php artisan make:request StoreUpdateProductFormRequest
+
+9.1 Configura StoreUpdateProductFormRequest com as validações de cada campo. Passe o return do método authorize() para true.
+
+            public function authorize()
+            {
+                return true;
+            }
+
+            public function rules()
+            {
+                $id = $this->segment(3);
+                
+                return [
+                    'category_id'   => 'required|exists:categories,id',
+                    'name'          => "required|min:3|max:10|unique:products,name,{$id},id",
+                    'description'   => 'max:1000',
+                    'image'         => 'image',
+                ];
+            }
 
 
+<br>
+<b>DELETE Produto</b>
 
+10. Cria método destroy()
 
+            public function destroy($id)
+            {
+                $product = $this->product->find($id);
 
+                if(!$product)
+                    return response()->json(['error' => 'Not Found'], 404);
 
+                $product->delete();
+                
+                return response()->json(['Success' => true], 204);
+            }
+
+<br>
+<b>Show Produto</b>
+
+11. Adicione método show()
+
+            public function show($id)
+            {
+                $product = $this->product->find($id);
+
+                if(!$product)
+                    return response()->json(['error' => 'Not Found'], 404);
+
+                return response()->json($product);
+            }
+
+<br>
+<b>UPLOAD Imagens - Produto</b>
+
+12. Edite filesystems (config\filesystems.php), altere o segundo parametro 'local' para 'public'.
+
+            'default' => env('FILESYSTEM_DRIVER', 'public'),
+
+12.1 Criar link simbolico para que seja criado pasta 'storage'(storage\app\public) dentro do diretório /public. 
+
+            php artisan storage:link
 
 
 
