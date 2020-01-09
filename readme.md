@@ -55,11 +55,10 @@ Define rota do tipo GET em routes/api.php
 9. Adiciona método na model Category
 
     public function getResults($name = null)
-    {   // verifica se está passando nome na pesquisa, Se sim traz tudo!
+    {   
         if (!$name)
             return $this->get();
 
-        // Se não, faz o like
         return $this->where('name', 'LIKE', "%{$name}%")
                 ->get();
     }
@@ -75,16 +74,10 @@ Faça teste no browser ou postman passando filtro com ou sem nome
 
 10. Adicione método construtor no controller CategoryController.
 
-    // Propriedade category usando no construct
-
     private $category;
-    
-    // Criado construct para injetar Category automaticamente
 
     public function __construct(Category $category)
     {   
-        //propriedade $category recebe objeto Category
-
         $this->category = $category;
     }
 
@@ -117,7 +110,9 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 11. Adiciona método update() em CategoryController
 
     public function update(Request $request, $id)
+    
     {
+    
         $category = $this->category->find($id);
         
         if(!$category)
