@@ -76,11 +76,15 @@ Faça teste no browser ou postman passando filtro com ou sem nome
 10. Adicione método construtor no controller CategoryController.
 
     // Propriedade category usando no construct
+
     private $category;
     
     // Criado construct para injetar Category automaticamente
+
     public function __construct(Category $category)
-    {   //propriedade $category recebe objeto Category
+    {   
+        //propriedade $category recebe objeto Category
+
         $this->category = $category;
     }
 
@@ -115,6 +119,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
     public function update(Request $request, $id)
     {
         $category = $this->category->find($id);
+        
         if(!$category)
             return response()->json(['error' => 'Not found'], 404);
         
@@ -317,7 +322,7 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
     php artisan db:seed --class=ProductsTableSeeder
 
-    
+
 
 
 
