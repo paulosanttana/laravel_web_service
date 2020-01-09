@@ -22,7 +22,7 @@
 
 Configura banco .env e roda migration
 
-    php artisan migrate
+        php artisan migrate
 
 5. Criar controller
 
@@ -39,7 +39,7 @@ Configura banco .env e roda migration
 
 Define rota do tipo GET em routes/api.php
 
-    Route::get('categories', 'Api\CategoryController@index');
+        Route::get('categories', 'Api\CategoryController@index');
 
 7. Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
 
@@ -83,24 +83,24 @@ Faça teste no browser ou postman passando filtro com ou sem nome
 
 10.1 Adicione método store
 
-    public function store(Request $request)
-    {
-        $category = $this->category->create($request->all());
+        public function store(Request $request)
+        {
+            $category = $this->category->create($request->all());
 
-        return response()->json($category, 201);
-    }
+            return response()->json($category, 201);
+        }
 
 10.2 Altera linha para receber propriedade '$this->category' criada no construct que recebe objeto.
 
-    $categories = $this->category->getResults($request->name);
+        $categories = $this->category->getResults($request->name);
 
 10.3 Adicione rota do tipo POST para store()
 
-    Route::post('categories', 'Api\CategoryController@store');
+        Route::post('categories', 'Api\CategoryController@store');
 
 10.4 Adicione fillable no model Category para permitir o insert
 
-    protected $fillable = ['name'];
+        protected $fillable = ['name'];
 
 Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=Nova Categoria)
 
@@ -123,7 +123,7 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 
 11.1 Adiciona rota do tipo PUT
 
-    Route::put('categories/{id}', 'Api\CategoryController@update');
+        Route::put('categories/{id}', 'Api\CategoryController@update');
 
 
 <br>
@@ -135,28 +135,28 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 
 12.1 Primeiro passo, passar o authorize() para true
 
-    public function authorize()
-    {
-        return true;
-    }
+        public function authorize()
+        {
+            return true;
+        }
 
 12.2 Definir regras de validações. Informar que o campo 'name' vai ser requerido, minimo 3 caracteres, maximo 50 caracteres e unico na tabela categories.
 
-    public function rules()
-    {
-        return [
-            'name' => 'required|min:3|max:50|unique:categories',
-        ];
-    }
+        public function rules()
+        {
+            return [
+                'name' => 'required|min:3|max:50|unique:categories',
+            ];
+        }
 
 12.3 No método store() mudar parametro Request para o StoreUpdateCategoryFormRequest criado. Não esqueça de importar (use App\Http\Requests\StoreUpdateCategoryFormRequest;)
 
-    public function store(StoreUpdateCategoryFormRequest $request)
-    {
-        $category = $this->category->create($request->all());
+        public function store(StoreUpdateCategoryFormRequest $request)
+        {
+            $category = $this->category->create($request->all());
 
-        return response()->json($category, 201);
-    }
+            return response()->json($category, 201);
+        }
 
 <br>
 <b>Permitir Editar registro cuja informações são unicas no banco de dados.</b>
@@ -169,34 +169,34 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 
 13.1 Altere o StoreUpdateCategoryFormRequest para que quando o valor for o mesmo o laravel permite alterar.
 
-    public function rules()
-    {
-        return [
-            'name' => "required|min:3|max:50|unique:categories,name,{$this->segment(3)},id",
-        ...
+        public function rules()
+        {
+            return [
+                'name' => "required|min:3|max:50|unique:categories,name,{$this->segment(3)},id",
+            ...
 
 <br>
 <b>DELETE Category</b>
 
 14 Criar método delete()
 
-    public function delete($id)
-    {
-        $category = Category::find($id);
-        if(!$category)
-            return response()->json(['error' => 'Not found'], 404);
+        public function delete($id)
+        {
+            $category = Category::find($id);
+            if(!$category)
+                return response()->json(['error' => 'Not found'], 404);
 
-        $category->delete();
-        
-        return response()->json(['success' => true], 204);
-    }
+            $category->delete();
+            
+            return response()->json(['success' => true], 204);
+        }
 
 Observação: usado model 'Category::find($id)' ao invez do '$this->category->find($id)'.
 
 
 14.1 Adiciona rota do tipo DELETE
 
-    Route::delete('categories/{id}', 'Api\CategoryController@delete');
+        Route::delete('categories/{id}', 'Api\CategoryController@delete');
 
 
 <br>
@@ -250,7 +250,7 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
 2.1 Execute a migration
 
-    php artisan migrate
+        php artisan migrate
 
 3. Criar factory Produtos para popular tabela com dados ficticios.
 
@@ -258,22 +258,22 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
 3.1 Inserir novo usuário no seed 'UsersTableSeeder'
 
-    public function run()
-    {
-        User::create([
-            'name'      => 'José Santana',
-            'email'     => 'josesantana@gmail.com',
-            'password'  => bcrypt('123456'),
-        ]);
-    }
+        public function run()
+        {
+            User::create([
+                'name'      => 'José Santana',
+                'email'     => 'josesantana@gmail.com',
+                'password'  => bcrypt('123456'),
+            ]);
+        }
 
 3.2 Descomente o retorno do método run() do seed 'DatabaseSeeder'.
 
-    $this->call(UsersTableSeeder::class);
+        $this->call(UsersTableSeeder::class);
 
 3.3-Execute o seed
 
-    php artisan db:seed
+        php artisan db:seed
 
 4. Criar Factory para inserir usuários fake
 
@@ -281,40 +281,40 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
 4.1 Defina os valores no factory criado.
 
-    use App\Models\Product;
-    use Faker\Generator as Faker;
+        use App\Models\Product;
+        use Faker\Generator as Faker;
 
-    $factory->define(Product::class, function (Faker $faker) {
-        return [
-            'name'          => $faker->unique()->word,
-            'description'   => $faker->sentence(),
-        ];
-    });
+        $factory->define(Product::class, function (Faker $faker) {
+            return [
+                'name'          => $faker->unique()->word,
+                'description'   => $faker->sentence(),
+            ];
+        });
 
 4.2 Criar novo seeder para definir quando registros deseja criar.
 
-    php artisan make:seeder ProductsTableSeeder
+        php artisan make:seeder ProductsTableSeeder
 
 4.3 Insira quantidade no seed ProductsTableSeeder, será criado 50 registros. 
 
-    public function run()
-    {
-        factory(Product::class, 50)->create();
-    }
+        public function run()
+        {
+            factory(Product::class, 50)->create();
+        }
 
 4.4 Adicione no seed 'DatabaseSeeder' o seed 'ProductsTableSeeder'.
 
-    public function run()
-    {
-        $this->call([
-            UsersTableSeeder::class,
-            ProductsTableSeeder::class,
-        ]);
-    }
+        public function run()
+        {
+            $this->call([
+                UsersTableSeeder::class,
+                ProductsTableSeeder::class,
+            ]);
+        }
 
 4.5 Execute no teminal
 
-    php artisan db:seed --class=ProductsTableSeeder
+        php artisan db:seed --class=ProductsTableSeeder
 
 
 
