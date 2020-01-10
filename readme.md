@@ -497,6 +497,103 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
             php artisan storage:link
 
+12.2 Atualizar método store()
+
+            public function store(Request $request)
+            {
+                $data = $request->all();
+
+                if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
+                    $name = kebab_case($request->name);
+                    $extension = $request->image->extension();
+                    
+                    $nameFile = "{$name}.{$extension}";
+                    $data['image'] = $nameFile;
+                    
+                    $upload = $request->image->storeAs('products', $nameFile);
+
+                    if (!$upload)
+                        return response()->json(['error' => 'Fail_Upload'], 500);
+                }
+
+                $product = $this->product->create($data);
+
+                return response()->json($product, 201);
+            }
+
+13. Atualizar método update() para atualizar imagen de upload.
+
+            public function update(Request $request, $id)
+            {
+                $product = $this->product->find($id);
+
+                if(!$product)
+                    return response()->json(['error' => 'Not Found'], 404);
+
+                $data = $request->all();
+                    
+                if ($request->hasFile('image') && $request->file('image')->isValid()) {
+
+                    if ($product->image) {
+                        if (Storage::exists("{$this->path}/{$product->image}"))
+                            Storage::delete("{$this->path}/{$product->image}");
+                    }
+
+                    $name = kebab_case($request->name);
+                    $extension = $request->image->extension();
+                    
+                    $nameFile = "{$name}.{$extension}";
+                    $data['image'] = $nameFile;
+                    
+                    $upload = $request->image->storeAs($this->path, $nameFile);
+
+                    if (!$upload)
+                        return response()->json(['error' => 'Fail_Upload'], 500);
+                }
+
+                $product->update($data);
+
+                return response()->json($product);
+            }
+
+13.1 Adicionado variavel $path com caminho da pasta de imagem. Adicionado nova variavel nos métodos Store() e update()
+
+            class ProductController extends Controller
+            {
+                private $product, $totalPage = 10;
+                private $path = 'products';
+
+                ...
+
+<i>Método store()</i>
+
+            $upload = $request->image->storeAs($this->path, $nameFile);
+
+
+<br>
+<b>DELETE Imagens - Produto</b>
+
+14. Adiciona logica de verificação se a imagem existe, se sim vai deletar imagem
+
+            public function destroy($id)
+            {
+                $product = $this->product->find($id);   
+
+                if(!$product)
+                    return response()->json(['error' => 'Not Found'], 404);
+                
+                // Deleta imagem
+                if ($product->image) {
+                    if (Storage::exists("{$this->path}/{$product->image}"))
+                        Storage::delete("{$this->path}/{$product->image}");
+                }            
+
+                $product->delete();
+                
+                return response()->json(['Success' => true ], 204);
+            }
+
 
 
 ## 2º Parte: Autenticação JWT Laravel
