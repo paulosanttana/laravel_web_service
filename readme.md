@@ -68,7 +68,10 @@ php artisan make:model Models\\Category -m
 4.1 Altere o `AppServiceProvider.php` para definir um tamanho de string dentro do metodo  `boot()`. 
 `O Laravel 5.4 fez uma alteração no conjunto de caracteres padrão do banco de dados e agora utf8mb4inclui o suporte ao armazenamento de emojis. Isso afeta apenas novos aplicativos e, enquanto você estiver executando o MySQL v5.7.7 e superior, não precisará fazer nada.`
 ```php
-Schema::defaultStringLength(191); 
+public function boot()
+{
+    Schema::defaultStringLength(191);
+}
 ```
 
 4.2 Configura banco `.env` 
