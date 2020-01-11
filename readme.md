@@ -8,11 +8,16 @@
 
 ## Contents
 
-- [Arquitetura API](#1º_Parte:_Arquitetura_API_(Laravel))
-- [Available Methods](#available-methods)
+- [Instalação Laravel](#Instalação)
+- [Arquitetura API](#Arquitetura-API)
+- [Relacionamento](#Relacionamento)
+- [VERSIONAMENTO de APIs](#VERSIONAMENTO-de-APIs)
+- [UPLOAD de imagem](#UPLOAD-de-imagem)
+- [RELACIONAMENTO entre Tabelas](#RELACIONAMENTO-entre-Tabelas) 
+- [INSERT Produto](#INSERT-Produto) 
 
 
-## 1º Parte: Arquitetura API (Laravel)
+## Instalação
 
 1. Intalação projeto Laravel 5.7
 ```bash
@@ -21,8 +26,10 @@ composer create-project --prefer-dist laravel/laravel blog "5.7.*"
 
 2. Alterar timezone em config/app.php
 ```php
-        'timezone' => 'America/Sao_Paulo',
+'timezone' => 'America/Sao_Paulo',
 ```
+
+## Arquitetura API
 
 3. Criar Model/Migration de Category
 ```bash
@@ -267,6 +274,8 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
 
 <br>
 
+## UPLOAD de imagem
+
 **Gestão de PRODUTOS com upload de imagens**
 
 1. Criar Model
@@ -377,6 +386,8 @@ php artisan db:seed --class=ProductsTableSeeder
 
 <br>
 
+## RELACIONAMENTO entre Tabelas
+
 **RELACIONAMENTO entre Product e Categoriy**
 
 5.  Alterar migrate de produto 'CreateProductsTable', adicionar relacionamento com a coluna 'category_id' e chave estrangeira na tabela Products.
@@ -454,6 +465,8 @@ public function index()
 }
 ```
 <br>
+
+## INSERT Produto
 
 **INSERT Produto**
 
@@ -595,6 +608,7 @@ public function store(Request $request)
     return response()->json($product, 201);
 }
 ```
+
 13. Atualizar método update() para atualizar imagen de upload.
 ```php
 public function update(Request $request, $id)
@@ -672,6 +686,8 @@ public function destroy($id)
 ```
 <br>
 
+## Relacionamento
+
 **RELACIONAMENTO - Category X Produto**
 
 Primeiro vamos fazer na Model Category, onde irá retornar todos os produtos relacionado a categoria.
@@ -685,7 +701,6 @@ public function productsCategory()
 {
     return $this->hasMany(Product::class);
 }
-
 ```
 
 Segundo vamos fazer na Model Product.
@@ -738,7 +753,7 @@ public function show($id)
 ```
 <br>
 
-**VERSIONAMENTO de APIs**
+## VERSIONAMENTO de APIs
 
 16. Versionar rotas, adicione todas as rotas dentro do grupo de rotas, como parametro passe o prefix como 'v1' e namespace 'Api\v1'. Retire o prefixo 'Api\' dos controllers.
 ```php
@@ -751,10 +766,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
     
 });
 ```
+
 16.1 Versionar controllers, crie uma pasta 'v1' no diretório Api (app\Http\Controllers\Api).
 ```php
 app\Http\Controllers\Api\v1
 ```
+
 16.2 Atualize o namespace dos controllers adicionando a pasta 'v1'. 
 ```php
 namespace App\Http\Controllers\Api\v1;
