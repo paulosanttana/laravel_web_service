@@ -3,6 +3,9 @@
 
 <br>
 
+**Projeto**
+
+Esse projeto utiliza Laravel 5.7 com Mysql.
 
 **Contents**
 
@@ -31,7 +34,7 @@
 
 ## Instalação
 
-1. Intalação projeto `Laravel 5.7`
+1. Intalação projeto com `Laravel 5.7`
 ```bash
 composer create-project --prefer-dist laravel/laravel blog "5.7.*"
 ```
@@ -50,17 +53,42 @@ composer create-project --prefer-dist laravel/laravel blog "5.7.*"
 php artisan make:model Models\\Category -m
 ```
 
-4. Adiciona coluna no migrate Category, adiciona no `AppServiceProvider.php` dentro do metodo  `boot()`.
+4. Adiciona coluna no migrate Category
+```php
+    public function up()
+    {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->unique(); //nova coluna
+            $table->timestamps();
+        });
+    }
+
+```
+4.1 Altere o `AppServiceProvider.php` para definir um tamanho de string dentro do metodo  `boot()`. 
+`O Laravel 5.4 fez uma alteração no conjunto de caracteres padrão do banco de dados e agora utf8mb4inclui o suporte ao armazenamento de emojis. Isso afeta apenas novos aplicativos e, enquanto você estiver executando o MySQL v5.7.7 e superior, não precisará fazer nada.`
 ```php
 Schema::defaultStringLength(191); 
 ```
 
-Configura banco `.env` e roda migration
+4.2 Configura banco `.env` 
+```php
+// Exemplo 
+
+DB_CONNECTION=mysql // conexão
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel_api  //nome do banco
+DB_USERNAME=root    // usuário
+DB_PASSWORD=root    // senha
+```
+
+4.3 Roda migration
 ```bash
 php artisan migrate
 ```
 
-5. Criar controller
+5. Criar controller `CategoryController`
 ```bash
 php artisan make:controller Api\\CategoryController
 ```
@@ -75,7 +103,7 @@ public function index(Category $category)
 }
 ```
 
-Define rota do tipo GET em `routes/api.php`
+Define rota do tipo `GET` em `routes/api.php`
 ```php
 Route::get('categories', 'Api\CategoryController@index');
 ```
