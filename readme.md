@@ -780,31 +780,34 @@ Os error podem ser tratados no arquivo app\Exceptions\Handler.php
 
 Tratando Error 404, adicionar if no método render() para quando a requisição for NotFoundHttpException que é o erro 404. 
 ```php
-            public function render($request, Exception $exception)
-            {
-                if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException)
-                    return response()->json(['error' => 'Not_found_URI'], 404);
+    public function render($request, Exception $exception)
+    {
+        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException)
+            return response()->json(['error' => 'Not_found_URI'], 404);
 
-                return parent::render($request, $exception);
-            }
+        return parent::render($request, $exception);
+    }
 ```
+
 Tratamento de requisições AJAX. Faz verificação se a requisição e via ajax ou não.
 ```php
-            public function render($request, Exception $exception)
-            {
-                if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException)
-                    if ($request->expectsJson())
-                        return response()->json(['error' => 'Not_found_URI'], 404);
+    public function render($request, Exception $exception)
+    {
+        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException)
+            if ($request->expectsJson())
+                return response()->json(['error' => 'Not_found_URI'], 404);
 
-                return parent::render($request, $exception);
-            }
+        return parent::render($request, $exception);
+    }
 ```
+
 Requisição com verbo http errado. Adicione outra condição if() no método render() para tipo de execessão quando o metódo não existe 'MethodNotAllowedHttpException'.
 ```php
-            if ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException)
-                if ($request->expectsJson())
-                    return response()->json(['error' => 'Method_Not_Allowed'], $exception->getStatusCode());
+    if ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException)
+        if ($request->expectsJson())
+            return response()->json(['error' => 'Method_Not_Allowed'], $exception->getStatusCode());
 ```
+
 <br>
 
 **Liberação de CORS**
