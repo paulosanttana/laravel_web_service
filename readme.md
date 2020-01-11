@@ -4,44 +4,58 @@
 <br>
 
 
-**Content**
-
-## Contents
+**Contents**
 
 - [Instalação Laravel](#Instalação)
 - [Arquitetura API](#Arquitetura-API)
-- [Relacionamento](#Relacionamento)
-- [VERSIONAMENTO de APIs](#VERSIONAMENTO-de-APIs)
+- [INSERT Category](#INSERT-Category)
+- [EDITE Category](#EDITE-Category)
+- [DELETE Category](#DELETE-Category)
+- [Rota API Simplificada](#Rota-API-Simplificada)
 - [UPLOAD de imagem](#UPLOAD-de-imagem)
 - [RELACIONAMENTO entre Tabelas](#RELACIONAMENTO-entre-Tabelas) 
 - [INSERT Produto](#INSERT-Produto) 
+- [EDITE Produto](#EDITE-Produto) 
+- [VALIDAÇÃO Produto](#VALIDAÇÃO-Produto)
+- [DELETE Produto](#SHOW-Produto)
+- [SHOW Produto](#SHOW-Produto)
+- [UPLOAD Imagens - Produto](#UPLOAD-Imagens---Produto)
+- [DELETE Imagens - Produto](#DELETE-Imagens---Produto)
+- [Relacionamento](#Relacionamento)
+- [VERSIONAMENTO de APIs](#VERSIONAMENTO-de-APIs)
+- [Limitar requisições de APIs](#Limitar-requisições-de-APIs)
+- [Tratamento de erros API](#Tratamento-de-erros-API)
+- [Liberação de CORS](#Liberação-de-CORS)
+
 
 
 ## Instalação
 
-1. Intalação projeto Laravel 5.7
+1. Intalação projeto `Laravel 5.7`
 ```bash
 composer create-project --prefer-dist laravel/laravel blog "5.7.*"
 ```
 
-2. Alterar timezone em config/app.php
+2. Alterar timezone em `config/app.php`
 ```php
+// config/app.php
+
 'timezone' => 'America/Sao_Paulo',
 ```
 
 ## Arquitetura API
 
-3. Criar Model/Migration de Category
+3. Criar Model e Migration de Category
 ```bash
 php artisan make:model Models\\Category -m
 ```
 
-4. Adiciona coluna no migrate Category, adiciona no AppServiceProvider.php dentro do metodo  boot().
+4. Adiciona coluna no migrate Category, adiciona no `AppServiceProvider.php` dentro do metodo  `boot()`.
 ```php
 Schema::defaultStringLength(191); 
 ```
 
-Configura banco .env e roda migration
+Configura banco `.env` e roda migration
 ```bash
 php artisan migrate
 ```
@@ -51,7 +65,7 @@ php artisan migrate
 php artisan make:controller Api\\CategoryController
 ```
 
-6. Cria metodo Index em CategoryController
+6. Cria metodo Index em `CategoryController`
 ```php
 public function index(Category $category)
 {
@@ -61,7 +75,7 @@ public function index(Category $category)
 }
 ```
 
-Define rota do tipo GET em routes/api.php
+Define rota do tipo GET em `routes/api.php`
 ```php
 Route::get('categories', 'Api\CategoryController@index');
 ```
@@ -69,7 +83,7 @@ Route::get('categories', 'Api\CategoryController@index');
 7. Faz insert manual no banco de veja o resultado (http://127.0.0.1:8000/api/categories).
 
 
-8. Altera index, passando resposábilidade para model Category.
+8. Altera `index`, passando resposábilidade para model `Category`.
 ```php    
 public function index(Category $category, Request $request)
 {
@@ -98,9 +112,9 @@ Faça teste no browser ou postman passando filtro com ou sem nome
     http://127.0.0.1:8000/api/categories
 
 
-**INSERT_Category** 
+## INSERT Category 
 
-10. Adicione método construtor no controller CategoryController.
+10. Adicione método construtor no controller `CategoryController`.
 ```php
 private $category;
 
@@ -110,7 +124,7 @@ public function __construct(Category $category)
 }
 ```
 
-10.1 Adicione método store
+10.1 Adicione método `store()`
 ```php
 public function store(Request $request)
 {
@@ -120,17 +134,17 @@ public function store(Request $request)
 }
 ```
 
-10.2 Altera linha para receber propriedade '$this->category' criada no construct que recebe objeto.
+10.2 Altera linha para receber propriedade `$this->category` criada no construct que recebe objeto.
 ```php
 $categories = $this->category->getResults($request->name);
 ```
 
-10.3 Adicione rota do tipo POST para store()
+10.3 Adicione rota do tipo `POST` para `store()`
 ```php
 Route::post('categories', 'Api\CategoryController@store');
 ```
 
-10.4 Adicione fillable no model Category para permitir o insert
+10.4 Adicione `fillable` no model `Category` para permitir o insert
 ```php
 protected $fillable = ['name'];
 ```
@@ -140,9 +154,9 @@ Faça teste de insert pelo postman (http://127.0.0.1:8000/api/categories?name=No
 <br>
 
 
-**EDITAR Category**
+## EDITE Category
 
-11. Adiciona método update() em CategoryController
+11. Adiciona método `update()` em `CategoryController`
 ```php
 public function update(Request $request, $id)
 {
@@ -156,7 +170,7 @@ public function update(Request $request, $id)
     return response()->json($category);
 }
 ```
-11.1 Adiciona rota do tipo PUT
+11.1 Adiciona rota do tipo `PUT`
 ```php
 Route::put('categories/{id}', 'Api\CategoryController@update');
 ```
@@ -166,12 +180,12 @@ Route::put('categories/{id}', 'Api\CategoryController@update');
 
 **VALIDAÇÃO Category**
 
-12. Criar formRequest, após criar estará disponível em app\Http\Request
+12. Criar formRequest, após criar estará disponível em `app\Http\Request`
 ```bash
 php artisan make:request StoreUpdateCategoryFormRequest
 ```
 
-12.1 Primeiro passo, passar o authorize() para true
+12.1 Primeiro passo, passar o `authorize()` para true
 ```php
 public function authorize()
 {
@@ -189,7 +203,7 @@ public function rules()
 }
 ```
 
-12.3 No método store() mudar parametro Request para o StoreUpdateCategoryFormRequest criado. Não esqueça de importar (use App\Http\Requests\StoreUpdateCategoryFormRequest;)
+12.3 No método `store()` mudar parametro `Request` para o `StoreUpdateCategoryFormRequest` criado. Não esqueça de importar `use App\Http\Requests\StoreUpdateCategoryFormRequest;`
 ```php
 public function store(StoreUpdateCategoryFormRequest $request)
 {
@@ -203,14 +217,14 @@ public function store(StoreUpdateCategoryFormRequest $request)
 
 **Permitir Editar registro cuja informações são unicas no banco de dados.**
 
-13. Altere o parametro Request para StoreUpdateCategoryFormRequest no método update()
+13. Altere o parametro `Request` para `StoreUpdateCategoryFormRequest` no método `update()`
 ```php
 public function update(StoreUpdateCategoryFormRequest $request, $id)
 {
     ...
 ```
 
-13.1 Altere o StoreUpdateCategoryFormRequest para que quando o valor for o mesmo o laravel permite alterar.
+13.1 Altere o `StoreUpdateCategoryFormRequest` para que quando o valor for o mesmo o laravel permite alterar.
 ```php
 public function rules()
 {
@@ -221,9 +235,9 @@ public function rules()
 <br>
 
 
-**DELETE Category**
+## DELETE Category
 
-14 Criar método delete()
+14 Criar método `delete()`
 ```php
 public function delete($id)
 {
@@ -239,7 +253,7 @@ public function delete($id)
 Observação: usado model 'Category::find($id)' ao invez do '$this->category->find($id)'.
 
 
-14.1 Adiciona rota do tipo DELETE
+14.1 Adiciona rota do tipo `DELETE`
 ```php
 Route::delete('categories/{id}', 'Api\CategoryController@delete');
 
@@ -247,7 +261,7 @@ Route::delete('categories/{id}', 'Api\CategoryController@delete');
 <br>
 
 
-**Rota API Simplificada**
+## Rota API Simplificada
 
 15. Comente as rotas já criada e adicione Rota API Simplificada (index, store, update, destroy).
 ```php
@@ -259,7 +273,7 @@ Route::apiResource('categories', 'Api\CategoryController');
 
 **Visualizar detalhes de category com método show()**
 
-16. Adicionar método show()
+16. Adicionar método `show()`
 ```php
 public function show($id)
 {
@@ -290,9 +304,9 @@ public function up()
 {
     Schema::create('products', function (Blueprint $table) {
         $table->increments('id');
-        $table->string('name', 100)->unique();
-        $table->text('description')->nullable();
-        $table->string('image')->nullable();
+        $table->string('name', 100)->unique(); // adicionado
+        $table->text('description')->nullable(); // adicionado
+        $table->string('image')->nullable(); // adicionado
         $table->timestamps();
     });
 }
@@ -305,17 +319,17 @@ public function up()
 <br>
 
 
-2.1 Execute a migration
+2.1 Execute a `migration`
 ```bash
 php artisan migrate
 ```
 
-3. Criar factory Produtos para popular tabela com dados ficticios.
+3. Criar `factory` Produtos para popular tabela com dados ficticios.
 ```bash
 php artisan make:seeder UsersTableSeeder
 ```
 
-3.1 Inserir novo usuário no seed 'UsersTableSeeder'
+3.1 Inserir novo usuário no seed `UsersTableSeeder`
 ```php
 public function run()
 {
@@ -327,17 +341,17 @@ public function run()
 }
 ```
 
-3.2 Descomente o retorno do método run() do seed 'DatabaseSeeder'.
+3.2 Descomente o retorno do método `run()` do seed `DatabaseSeeder`.
 ```php
 $this->call(UsersTableSeeder::class);
 ```
 
-3.3-Execute o seed
+3.3-Execute o `seed`
 ```bash
 php artisan db:seed
 ```
 
-4. Criar Factory para inserir usuários fake
+4. Criar `Factory` para inserir usuários fake
 ```bash
 php artisan make:factory ProductFactory
 ```
@@ -360,7 +374,7 @@ $factory->define(Product::class, function (Faker $faker) {
 php artisan make:seeder ProductsTableSeeder
 ```
 
-4.3 Insira quantidade no seed ProductsTableSeeder, será criado 50 registros. 
+4.3 Insira quantidade no seed `ProductsTableSeeder`, será criado 50 registros. 
 ```php
 public function run()
 {
@@ -368,7 +382,7 @@ public function run()
 }
 ```
 
-4.4 Adicione no seed 'DatabaseSeeder' o seed 'ProductsTableSeeder'.
+4.4 Adicione no seed `DatabaseSeeder` o seed `ProductsTableSeeder`.
 ```php
 public function run()
 {
@@ -390,7 +404,7 @@ php artisan db:seed --class=ProductsTableSeeder
 
 **RELACIONAMENTO entre Product e Categoriy**
 
-5.  Alterar migrate de produto 'CreateProductsTable', adicionar relacionamento com a coluna 'category_id' e chave estrangeira na tabela Products.
+5.  Alterar migrate de produto `CreateProductsTable`, adicionar relacionamento com a coluna `category_id` e chave estrangeira na tabela `Products`.
 ```php
 public function up()
     {
@@ -409,7 +423,7 @@ public function up()
     }
 
 ```
-5.1 Adicionar 'category_id' na factory 'ProductFactory.php'.
+5.1 Adicionar `category_id` na factory `ProductFactory.php`.
 ```php
 $factory->define(Product::class, function (Faker $faker) {
     return [
@@ -434,7 +448,7 @@ public function run()
     ]);
 }
 ```
-5.4 Incluir no seeder 'CategoriesTableSeeder' no 'DataBaseSeeder.php'
+5.4 Incluir no seeder `CategoriesTableSeeder` no `DataBaseSeeder.php`
 ```php
 public function run()
 {
@@ -445,17 +459,17 @@ public function run()
     ]);
 }
 ```
-5.5 Execute as migrations novamente com refresh e --seed para que seja excluido todas tabelas e criado novamente com todos seeds.
+5.5 Execute as migrations novamente com `refresh` e `--seed` para que seja excluido todas tabelas e criado novamente com todos seeds.
 ```bash
 php artisan migrate:refresh --seed
 ```
 
-6. Listar produtos. Crie novo controller 'ProductController'
+6. Listar produtos. Crie novo controller `ProductController`
 ```bash
 php artisan make:controller Api\\ProductController --resource
 ```
 
-6.1 Configura método index(). Não esqueça de importar model Product.
+6.1 Configura método `index()`. Não esqueça de importar model `ProductP`.
 ```php
 public function index()
 {
@@ -468,9 +482,7 @@ public function index()
 
 ## INSERT Produto
 
-**INSERT Produto**
-
-7. Criar método store() no controller ProductController
+7. Criar método `store()` no controller `ProductController`
 ```php
 public function store(Request $request)
 {
@@ -482,16 +494,16 @@ public function store(Request $request)
 }
 ```
 
-7.1 Adiciona coluna 'category_id' no model Product 
+7.1 Adiciona coluna `category_id` no model `Product` 
 ```php
 protected $fillable = ['name', 'description', 'image', 'category_id'];
 ```
 
 <br>
 
-**EDITE Produto**
+## EDITE Produto
 
-8. Adiciona método update em ProductController
+8. Adiciona método `update()` em `ProductController`
 ```php
 public function update(Request $request, $id)
 {
@@ -509,14 +521,14 @@ public function update(Request $request, $id)
 
 <br>
 
-**VALIDAÇÃO Produto**
+## VALIDAÇÃO Produto
 
-9. Cria formRequest com nome StoreUpdateProductFormRequest
+9. Cria `formRequest` com nome `StoreUpdateProductFormRequest`
 ```bash
 php artisan make:request StoreUpdateProductFormRequest
 ```
 
-9.1 Configura StoreUpdateProductFormRequest com as validações de cada campo. Passe o return do método authorize() para true.
+9.1 Configura `StoreUpdateProductFormRequest` com as validações de cada campo. Passe o return do método `authorize()` para `true`.
 ```php
 public function authorize()
 {
@@ -538,9 +550,9 @@ public function rules()
 ```
 <br>
 
-**DELETE Produto**
+## DELETE Produto
 
-10. Cria método destroy()
+10. Cria método `destroy()`
 ```php
 public function destroy($id)
 {
@@ -556,9 +568,9 @@ public function destroy($id)
 ```
 <br>
 
-**Show Produto**
+## SHOW Produto
 
-11. Adicione método show()
+11. Adicione método `show()`
 ```php
 public function show($id)
 {
@@ -572,18 +584,18 @@ public function show($id)
 ```
 <br>
 
-**UPLOAD Imagens - Produto**
+## UPLOAD Imagens - Produto
 
-12. Edite filesystems (config\filesystems.php), altere o segundo parametro 'local' para 'public'.
+12. Edite filesystems `config\filesystems.php`, altere o segundo parametro `'local'` para `'public'`.
 ```php
 'default' => env('FILESYSTEM_DRIVER', 'public'),
 ```
-12.1 Criar link simbolico para que seja criado pasta 'storage'(storage\app\public) dentro do diretório /public. 
+12.1 Criar `link simbolico` para que seja criado pasta `storage`(storage\app\public) dentro do diretório `/public`. 
 ```bash
 php artisan storage:link
 ```
 
-12.2 Atualizar método store()
+12.2 Atualizar método `store()`
 ```php
 public function store(Request $request)
 {
@@ -609,7 +621,7 @@ public function store(Request $request)
 }
 ```
 
-13. Atualizar método update() para atualizar imagen de upload.
+13. Atualizar método `update()` para atualizar imagen de upload.
 ```php
 public function update(Request $request, $id)
 {
@@ -645,7 +657,7 @@ public function update(Request $request, $id)
 }
 ```
 
-13.1 Adicionado variavel $path com caminho da pasta de imagem. Adicionado nova variavel nos métodos Store() e update()
+13.1 Adicionado variavel `$path` com caminho da pasta de imagem. Adicionado nova variavel nos métodos `Store()` e `update()`
 ```php
 class ProductController extends Controller
 {
@@ -661,7 +673,7 @@ $upload = $request->image->storeAs($this->path, $nameFile);
 ```
 <br>
 
-**DELETE Imagens - Produto**
+## DELETE Imagens - Produto
 
 14. Adiciona logica de verificação se a imagem existe, se sim vai deletar imagem
 ```php
@@ -688,12 +700,12 @@ public function destroy($id)
 
 ## Relacionamento
 
-**RELACIONAMENTO - Category X Produto**
+**Relacionamento - Category X Produto**
 
 Primeiro vamos fazer na Model Category, onde irá retornar todos os produtos relacionado a categoria.
-Relacionamento um pra muitos '1 -> N' (Categoria pode ter vários produtos, mas 1 Produto só tem 1 categoria)
+Relacionamento um pra muitos `'1 -> N'` (Categoria pode ter vários produtos, mas 1 Produto só tem 1 categoria)
 
-15. Adicione método `products()` na model Category. O método `hasMany()` faz relacionamento UM pra MUITOS.
+15. Adicione método `productsCategory()` na model Category. O método `hasMany()` faz relacionamento UM pra MUITOS.
 O $this faz referencia a propria classe 'Category'. 
 Como a class Product está no mesmo namespace não precisa importar.
 ```php
@@ -704,7 +716,7 @@ public function productsCategory()
 ```
 
 Segundo vamos fazer na Model Product.
-15.1 Adiconar método category() para retorar a categoria do produto.
+15.1 Adiconar método `categoryProduct()` para retorar a categoria do produto.
 Produto só tem uma categoria vinculada a ele.
 ```php
 public function categoryProduct()
@@ -713,11 +725,11 @@ public function categoryProduct()
 }
 ```
 
-15.2 Cria rota do relacionamento antes das rotas API "Route::apiResource(... ".
+15.2 Cria rota do relacionamento antes das rotas API `Route::apiResource(... `.
 ```php
 Route::get('categories/{id}/products', 'Api\CategoryController@products');
 ```
-15.3 Cria o método productsCategory() em CategoryController.
+15.3 Cria o método `productsCategory()` em CategoryController.
 
 ```php
 // Método de RELACIONAMENTO Category -> Product
@@ -738,7 +750,7 @@ public function products($id)
 }
 ```
 
-15.4 Para listar os produtos da categoria adicione no método show() na listagem do produto o método 'with()', como parametro desse método passe o método criado no model category 'categoryProduct()'.  
+15.4 Para listar os produtos da categoria adicione no método `show()` na listagem do produto o método `with()`, como parametro desse método passe o método criado no model category `categoryProduct()`.  
 ```php
 public function show($id)
 {
@@ -755,7 +767,7 @@ public function show($id)
 
 ## VERSIONAMENTO de APIs
 
-16. Versionar rotas, adicione todas as rotas dentro do grupo de rotas, como parametro passe o prefix como 'v1' e namespace 'Api\v1'. Retire o prefixo 'Api\' dos controllers.
+16. Versionar rotas, adicione todas as rotas dentro do grupo de rotas, como parametro passe o prefix como `v1` e namespace `Api\v1`. Retire o prefixo `Api\` dos controllers.
 ```php
 Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
 
@@ -767,12 +779,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
 });
 ```
 
-16.1 Versionar controllers, crie uma pasta 'v1' no diretório Api (app\Http\Controllers\Api).
+16.1 Versionar controllers, crie uma pasta `v1` no diretório Api `app\Http\Controllers\Api`.
 ```php
 app\Http\Controllers\Api\v1
 ```
 
-16.2 Atualize o namespace dos controllers adicionando a pasta 'v1'. 
+16.2 Atualize o namespace dos controllers adicionando a pasta `v1`. 
 ```php
 namespace App\Http\Controllers\Api\v1;
 ```
@@ -781,13 +793,13 @@ namespace App\Http\Controllers\Api\v1;
 
 **Configurações de Rotas (observação)**
 
-As configurações de rotas estão disponíveis em app\Providers\RouteServiceProvider.php .
+As configurações de rotas estão disponíveis em `app\Providers\RouteServiceProvider.php` .
 
 Configuração de namespace 
 ```php
 protected $namespace = 'App\Http\Controllers';
 ```
-Configuração default de rotas API está no método mapApiRoutes()
+Configuração default de rotas API está no método `mapApiRoutes()`
 ```php
 protected function mapApiRoutes()
 {
@@ -800,9 +812,9 @@ protected function mapApiRoutes()
 ```
 <br>
 
-**Limitar requisições de APIs**
+## Limitar requisições de APIs
 
-Para configurar limitar requisições, acessar app\Http\Kernel.php, no Middleware api alterar o valor da propriedade 'throttle', por default está configurado para 60 requisições.
+Para configurar limitar requisições, acessar `app\Http\Kernel.php`, no Middleware api alterar o valor da propriedade `'throttle'`, por default está configurado para 60 requisições.
 ```php
 'api' => [
     'throttle:60,1',
@@ -812,11 +824,11 @@ Para configurar limitar requisições, acessar app\Http\Kernel.php, no Middlewar
 ```
 <br>
 
-**Tratamento de erros API**
+## Tratamento de erros API
 
-Os error podem ser tratados no arquivo app\Exceptions\Handler.php
+Os error podem ser tratados no arquivo `app\Exceptions\Handler.php`
 
-Tratando Error 404, adicionar if no método render() para quando a requisição for NotFoundHttpException que é o erro 404. 
+Tratando Error 404, adicionar if no método `render()` para quando a requisição for `NotFoundHttpException` que é o erro 404. 
 ```php
 public function render($request, Exception $exception)
 {
@@ -839,7 +851,7 @@ public function render($request, Exception $exception)
 }
 ```
 
-Requisição com verbo http errado. Adicione outra condição if() no método render() para tipo de execessão quando o metódo não existe 'MethodNotAllowedHttpException'.
+Requisição com verbo http errado. Adicione outra condição if() no método render() para tipo de execessão quando o metódo não existe `MethodNotAllowedHttpException`.
 ```php
 if ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException)
     if ($request->expectsJson())
@@ -848,7 +860,7 @@ if ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllow
 
 <br>
 
-**Liberação de CORS**
+## Liberação de CORS
 
 No CORS você pode autorizar ou não  requisições externas. Poderá utilizar o AJAX ou JavaScript puro, porém vamos utilizar o Axios.
 
