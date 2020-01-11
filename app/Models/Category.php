@@ -19,4 +19,9 @@ class Category extends Model
         return $this->where('name', 'LIKE', "%{$name}%")
                 ->get();
     }
+
+    public function productsCategory()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

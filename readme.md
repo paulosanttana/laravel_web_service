@@ -595,6 +595,91 @@ Faça pesquisa pela url passando o id (http://127.0.0.1:8000/api/categories/2)
             }
 
 
+<br>
+<b>RELACIONAMENTO - Category X Produto</b>
+
+Primeiro vamos fazer na Model Category, onde irá retornar todos os produtos relacionado a categoria.
+Relacionamento um pra muitos '1 -> N' (Categoria pode ter vários produtos, mas 1 Produto só tem 1 categoria)
+
+15. Adicione método products() na model Category. O método hasMany() faz relacionamento UM pra MUITOS.
+O $this faz referencia a propria classe 'Category'. 
+Como a class Product está no mesmo namespace não precisa importar.
+
+            public function productsCategory()
+            {
+                return $this->hasMany(Product::class);
+            }
+
+
+Segundo vamos fazer na Model Product.
+15.1 Adiconar método category() para retorar a categoria do produto.
+Produto só tem uma categoria vinculada a ele.
+
+            public function categoryProduct()
+            {
+                return $this->belongsTo(Category::class);
+            }
+
+15.2 Cria rota do relacionamento antes das rotas API "Route::apiResource(... ".
+
+            Route::get('categories/{id}/products', 'Api\CategoryController@products');
+
+15.3 Cria o método productsCategory() em CategoryController.
+
+
+            // Método de RELACIONAMENTO Category -> Product
+            public function products($id)
+            {   // Recupera Categoria pelo seu ID
+                $category = $this->category->find($id);
+                if(!$category)
+                    return response()->json(['error' => 'Not found'], 404);
+
+                // Recupera Produtos. Método productsCategory() é o mesmo criado na model Category.
+                $products = $category->productsCategory()->paginate($this->totalPage);        
+                
+                // Retorna produtos e categorias
+                return response()->json([
+                    'category' => $category,
+                    'products' => $products,
+                ]);
+            }
+
+15.4 Para listar os produtos da categoria adicione no método show() na listagem do produto o método 'with()', como parametro desse método passe o método criado no model category 'categoryProduct()'.  
+
+            public function show($id)
+            {
+                $product = $this->product->with('categoryProduct')->find($id);
+
+                if(!$product)
+                    return response()->json(['error' => 'Not Found'], 404);
+
+                return response()->json($product);
+            }
+
+
+<br>
+<b>VERSIONAMENTO de APIs</b>
+
+16. Versionar rotas, adicione todas as rotas dentro do grupo de rotas, como parametro passe o prefix como 'v1' e namespace 'Api\v1'. Retire o prefixo 'Api\' dos controllers.
+
+            Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
+
+                Route::get('categories/{id}/products', 'CategoryController@products');
+                Route::apiResource('categories', 'CategoryController');
+                
+                Route::apiResource('products', 'ProductController');
+                
+            });
+
+16.1 Versionar controllers, crie uma pasta 'v1' no diretório Api (app\Http\Controllers\Api).
+
+            app\Http\Controllers\Api\v1
+
+16.2 Atualize o namespace dos controllers adicionando a pasta 'v1'. 
+
+            namespace App\Http\Controllers\Api\v1;
+
+
 
 ## 2º Parte: Autenticação JWT Laravel
 ## 3º Parte: Laravel + VueJs

@@ -32,4 +32,9 @@ class Product extends Model
             })
             ->paginate($total);            
     }
+
+    public function categoryProduct()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

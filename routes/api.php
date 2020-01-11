@@ -10,6 +10,11 @@
 
 // Rota API Simplificada (index, store, update, destroy). ----------------
 
-Route::apiResource('categories', 'Api\CategoryController');
+Route::group(['prefix' => 'v1', 'namespace' => 'Api\v1'], function(){
 
-Route::apiResource('products', 'Api\ProductController');
+    Route::get('categories/{id}/products', 'CategoryController@products');
+    Route::apiResource('categories', 'CategoryController');
+    
+    Route::apiResource('products', 'ProductController');
+    
+});

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\v1;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use App\Http\Requests\StoreUpdateCategoryFormRequest;
 class CategoryController extends Controller
 {
     // Propriedade category usando no construct
-    private $category;
+    private $category, $totalPage = 10;
     
     // Criado construct para injetar Category automaticamente
     public function __construct(Category $category)
@@ -62,5 +62,22 @@ class CategoryController extends Controller
         $category->delete();
         
         return response()->json(['success' => true], 204);
+    }
+
+    // Método de RELACIONAMENTO Category -> Product
+    public function products($id)
+    {   // Recupera Categoria pelo seu ID
+        $category = $this->category->find($id);
+        if(!$category)
+            return response()->json(['error' => 'Not found'], 404);
+
+        // Recupera Produtos. Método productsCategory() é o mesmo criado na model Category.
+        $products = $category->productsCategory()->paginate($this->totalPage);        
+        
+        // Retorna produtos e categorias
+        return response()->json([
+            'category' => $category,
+            'products' => $products,
+        ]);
     }
 }
