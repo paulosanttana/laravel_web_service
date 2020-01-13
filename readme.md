@@ -29,6 +29,7 @@ Esse projeto utiliza Laravel 5.7 com Mysql.
 - [Limitar requisições de APIs](#Limitar-requisições-de-APIs)
 - [Tratamento de erros API](#Tratamento-de-erros-API)
 - [Liberação de CORS](#Liberação-de-CORS)
+- [Tradução Laravel](#Tradução-Laravel)
 
 
 
@@ -1034,13 +1035,3 @@ git clone https://github.com/caouecs/Laravel-lang.git
 
 'fallback_locale' => 'pt-BR',
 ```
-
-
-<br>
-
-****
-
-
-## 2º Parte: Autenticação JWT Laravel
-## 3º Parte: Laravel + VueJs
-
