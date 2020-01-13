@@ -895,12 +895,145 @@ if ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllow
 
 No CORS você pode autorizar ou não  requisições externas. Poderá utilizar o AJAX ou JavaScript puro, porém vamos utilizar o Axios.
 
+1. Faça teste para ver mensagem de CORS, crie arquivo `teste.html`, adicione botão para enviar requisição axios. CDN [Axios:](https://github.com/axios/axios)
+```html
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Teste CORS</title>
+</head>
+<body>
+    <!-- Adiconar botão com eventdo  onclick="sendAjax() -->
+    <button onclick="sendAjax()">Salvar</button>
 
-1. Instalar Axios para fazer requisição Ajax (https://github.com/axios/axios). Executar no terminal 
+    <!-- CDN Axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        // Método sendAjax
+        function sendAjax() {
+            // axios envia requisição para API
+            axios.get('http://127.0.0.1:8000/api/v1/products')
+                    // Resposta requisição
+                    .then(response => {
+                        console.log(response)
+                    })
+                    // error requisição
+                    .catch(error => {
+                        alert('Falha...')
+                        console.log(error)
+                    })
+        }
+    </script>
+</body>
+</html>
+```
+1.2 Abra o aquivo no browser, clique no botão e veja através do devtools na aba Console que apresentará erro, informando que a origem foi bloqueada pelo CORS `Access to XMLHttpRequest at 'http://127.0.0.1:8000/api/v1/products' from origin 'null' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+
+2. Para liberar acesso de CORS, acessar github do [laravel-cors](https://github.com/spatie/laravel-cors) e instale o pacote via composer
+```bash
+composer require spatie/laravel-cors
+```
+
+Registrar middleware `\Spatie\Cors\Cors::class` no arquivo `app\Http\Kernel.php`. 
+```php
+ 'api' => [
+            'throttle:60,1',
+            'bindings',
+            \Spatie\Cors\Cors::class,
+        ],
+```
+
+Em seguida faça o teste no browser novamente e veja no devtools na aba Console que a mensagem de bloqueio de CORS sumiu.
+
+```javascript
+{data: {…}, status: 200, statusText: "OK", headers: {…}, config: {…}, …}
+data: {current_page: 1, data: Array(10), first_page_url: "http://127.0.0.1:8000/api/v1/products?page=1", from: 1, last_page: 6, …}
+status: 200
+statusText: "OK"
+headers: {cache-control: "no-cache, private", content-type: "application/json"}
+config: {url: "http://127.0.0.1:8000/api/v1/products", method: "get", headers: {…}, transformRequest: Array(1), transformResponse: Array(1), …}
+request: XMLHttpRequest {readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, onreadystatechange: ƒ, …}
+__proto__: Object
+```
+
+**Configurações de CORS**
+
+3. Execute o comando para criar o arquivo de configuração de CORS 
+```bash
+php artisan vendor:publish --provider="Spatie\Cors\CorsServiceProvider" --tag="config"
+```
+
+3.1 O arquivo de CORS estará disponível em  `config\cors.php`. No arquivo poderá observar as configurações padrões como o tipo de origem, os tipos de métodos de acesso, os hearders, etc..
+
+```php
+'default_profile' => [
+
+        'allow_credentials' => false,
+
+        'allow_origins' => [
+            '*',    // Com '*' aceita requisição de qualquer client
+        ],
+
+        //  Métodos de requisição que vai aceitar 'POST', 'GET', 'OPTIONS', ...
+        'allow_methods' => [
+            'POST',
+            'GET',
+            'OPTIONS',
+            'PUT',
+            'PATCH',
+            'DELETE',
+        ],
+
+        'allow_headers' => [
+            'Content-Type',
+            'X-Auth-Token',
+            'Origin',
+            'Authorization',
+        ],
+
+        'expose_headers' => [
+            'Cache-Control',
+            'Content-Language',
+            'Content-Type',
+            'Expires',
+            'Last-Modified',
+            'Pragma',
+        ],
+
+        //  Mensagem de erro customizavel
+        'forbidden_response' => [
+            'message' => 'Forbidden (cors).',
+            'status' => 403,
+        ],
+
+        /*
+         * Preflight request will respond with value for the max age header.
+         */
+        'max_age' => 60 * 60 * 24,
+    ],
+```
+
+## Tradução Laravel
+
+1. Usar pacote [Laravel-lang](https://github.com/caouecs/Laravel-lang). Faça o git clone
+```bash
+git clone https://github.com/caouecs/Laravel-lang.git
+```
+
+1.2 Será criado para `Laravel-lang`, cópia para pt-BR disponível em `Laravel-lang\src` e cole em dentro da pasta lang `resource\lang`. Ao termino poderá excluir diretório clonado `Laravel-lang`.
 
 
+1.3 Para traduzir abra arquivo `config\app.php` e altere valor de `locale` e `fallback_locale` para pt-BR. Após essa configuração as mensagens default do laravel serão traduzidas para o português.
 
+```php
+'locale' => 'pt-BR',
 
+'fallback_locale' => 'pt-BR',
+```
 
 
 <br>
